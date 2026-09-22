@@ -1,0 +1,38 @@
+name: publish-frozen-bootstrap-release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - company-runtime-runner-bootstrap.sh
+      - SHA256SUMS
+      - README.md
+      - .github/workflows/publish-frozen-bootstrap-release.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify frozen script bytes
+        run: |
+          echo '4214d3b7a47668512d364b1a2efa991b784616555b0cf74f6dab223d8033dec2  company-runtime-runner-bootstrap.sh' | sha256sum --check --status
+      - name: Create immutable tag and public release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag='bootstrap-v1-4214d3b7'
+          if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git tag -a "$tag" -m 'Frozen Company Runtime runner bootstrap'
+            git push origin "$tag"
+          fi
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title 'Company Runtime Bootstrap v1' --notes 'Frozen credential-free runner bootstrap. Verify SHA256SUMS before execution.' company-runtime-runner-bootstrap.sh SHA256SUMS
