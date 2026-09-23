@@ -1,0 +1,35 @@
+name: publish-frozen-bootstrap-v2-2-release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - company-runtime-runner-bootstrap-v2.2.sh
+      - SHA256SUMS-v2.2
+      - .github/workflows/publish-frozen-bootstrap-v2-2-release.yml
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify frozen V2.2 asset
+        run: |
+          echo '0bd40d66088ea2d9a3a0168a78c6e9746e6ca094ee75dfbd83e48cab849a1f75  company-runtime-runner-bootstrap-v2.2.sh' | sha256sum --check --status
+          ! grep -E '(BEGIN .*PRIVATE KEY|ghp_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)' company-runtime-runner-bootstrap-v2.2.sh
+      - name: Tag and publish V2.2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: bootstrap-v2-2-0bd40d66
+        run: |
+          git config user.name 'company-runtime-release-bot'
+          git config user.email 'company-runtime-release-bot@users.noreply.github.com'
+          if ! git ls-remote --exit-code --tags origin "refs/tags/$TAG"; then
+            git tag -a "$TAG" -m 'Frozen runner bootstrap V2.2'
+            git push origin "$TAG"
+          fi
+          gh release view "$TAG" || gh release create "$TAG" company-runtime-runner-bootstrap-v2.2.sh SHA256SUMS-v2.2 --title 'Company Runtime Bootstrap V2.2' --notes 'V2.2 corrects the svc.sh lifecycle: it is generated after runner configuration and is required before service installation. V2.1 is superseded for production.'
