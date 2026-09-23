@@ -2,15 +2,17 @@
 
 ## Production artifact
 
-Use only the frozen V2.1 release asset. It replaces HEAD-only network preflight with bounded HTTPS GET probes and implements GitHub Actions runner registration with the official explicit `config.sh --token` contract.
+Use only the frozen V2.2 release asset. It models the GitHub Actions Runner lifecycle correctly: extraction does not require `svc.sh`; after successful `config.sh --token`, `svc.sh`, `.runner`, and `.credentials` are all required before service installation.
 
 ```text
-5a89769e2e60d92ee09ba986b4a69b2433269cc9ec8d7be1c2cdb9fc1b280d5f  company-runtime-runner-bootstrap-v2.1.sh
+0bd40d66088ea2d9a3a0168a78c6e9746e6ca094ee75dfbd83e48cab849a1f75  company-runtime-runner-bootstrap-v2.2.sh
 ```
 
 The registration token is entered once only after `READY_FOR_REGISTRATION=PASS`; it is not part of this repository or release.
 
 ## Superseded releases
+
+`bootstrap-v2-1-5a89769e` is **SUPERSEDED_FOR_PRODUCTION** because it required `svc.sh` before runner configuration.
 
 `bootstrap-v2-13f4db4b` is **SUPERSEDED_FOR_PRODUCTION** because its HEAD-only network probe can be a false negative.
 
