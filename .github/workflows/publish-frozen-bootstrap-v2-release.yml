@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify frozen V2 artifact
         run: |
-          echo 'c37ddad339911f44fb3868c7ec2b7d277bb77aa685ef9d745507667af8828bf2  company-runtime-runner-bootstrap-v2.sh' | sha256sum --check --status
+          echo '13f4db4b0c115e43f3075ab6cba9e90f629226b5f709f1a4678f9a63cfcd57e2  company-runtime-runner-bootstrap-v2.sh' | sha256sum --check --status
           ! grep -E '(BEGIN .*PRIVATE KEY|ghp_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)' company-runtime-runner-bootstrap-v2.sh
       - name: Tag and publish V2
         env:
@@ -28,7 +28,9 @@ jobs:
         run: |
           git config user.name 'company-runtime-release-bot'
           git config user.email 'company-runtime-release-bot@users.noreply.github.com'
-          git tag -a "$TAG" -m 'Frozen runner bootstrap V2'
-          git push origin "$TAG"
-          gh release create "$TAG" company-runtime-runner-bootstrap-v2.sh SHA256SUMS-v2 --title 'Company Runtime Bootstrap V2' --notes 'V2 uses the official explicit config.sh --token registration contract. V1 is deprecated for production registration.'
+          if ! git ls-remote --exit-code --tags origin "refs/tags/$TAG"; then
+            git tag -a "$TAG" -m 'Frozen runner bootstrap V2'
+            git push origin "$TAG"
+          fi
+          gh release view "$TAG" || gh release create "$TAG" company-runtime-runner-bootstrap-v2.sh SHA256SUMS-v2 --title 'Company Runtime Bootstrap V2' --notes 'V2 uses the official explicit config.sh --token registration contract. V1 is deprecated for production registration.'
 
