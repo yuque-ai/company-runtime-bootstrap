@@ -1,13 +1,16 @@
 # Company Runtime Bootstrap
 
-This repository distributes the credential-free, frozen bootstrap script for the Company Runtime GitHub Actions self-hosted runner.
+## Production artifact
 
-## Integrity
-
-Verify the downloaded script before execution:
+Use only the frozen V2 release asset. It implements GitHub Actions runner registration with the official explicit `config.sh --token` contract and keeps the token out of the bootstrap source, Git history, and release asset.
 
 ```text
-4214d3b7a47668512d364b1a2efa991b784616555b0cf74f6dab223d8033dec2  company-runtime-runner-bootstrap.sh
+13f4db4b0c115e43f3075ab6cba9e90f629226b5f709f1a4678f9a63cfcd57e2  company-runtime-runner-bootstrap-v2.sh
 ```
 
-The script contains no registration token, private key, ECS secret, Feishu secret, or other production credential. The runner registration token is supplied only interactively after the script reports `READY_FOR_REGISTRATION=PASS`.
+The registration token is entered once only after `READY_FOR_REGISTRATION=PASS`; it is not part of this repository or release.
+
+## V1 status
+
+`bootstrap-v1-4214d3b7` remains an audit artifact and is **DEPRECATED_FOR_PRODUCTION**. Do not use it for runner registration.
+
